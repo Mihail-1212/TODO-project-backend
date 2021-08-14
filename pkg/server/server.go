@@ -15,9 +15,16 @@ type ServerConfig struct {
 	handler http.Handler
 }
 
-func (s Server) Run(cfg ServerConfig) error {
+func NewServerConfig(address string, handler http.Handler) *ServerConfig {
+	return &ServerConfig{
+		address: address,
+		handler: handler,
+	}
+}
+
+func (s Server) Run(cfg *ServerConfig) error {
 	s.httpServer = &http.Server{
-		Addr:           cfg.address,
+		Addr:           ":" + cfg.address,
 		Handler:        cfg.handler,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,

@@ -1,0 +1,13 @@
+port: 8090
+
+auth:
+  signing_key: "351a978f-b0e5-4441-ad3a-1c2512bc8d62"
+  hash_salt: "f413f49b-67f7-4619-88aa-a00f75c107a5"
+
+db:
+  username: "postgres"
+  dbname: "TODO-backend-golang"
+  password: "quackdoge"
+  sslmode: "disable"
+  host: "localhost"
+  port: "5432"
