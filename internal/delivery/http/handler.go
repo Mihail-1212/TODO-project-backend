@@ -24,11 +24,11 @@ func NewHandler(services *service.Services, authorizer *auth.Authorizer) *Handle
 
 func (h *Handler) InitAPI() *gin.Engine {
 	router := gin.New()
-	handlerV1 := v1.NewHandler(h.services, h.authorizer)
-
+	// Cors headers
+	router.Use(corsMiddleware())
 	router.Use(optionMiddleware)
-	// Added cors headers
-	router.Use(corsMiddleware)
+
+	handlerV1 := v1.NewHandler(h.services, h.authorizer)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

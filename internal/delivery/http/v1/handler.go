@@ -2,7 +2,6 @@ package v1
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mihail-1212/todo-project-backend/internal/service"
@@ -35,32 +34,9 @@ func (h *Handler) Init(api *gin.RouterGroup) {
 
 	v1 := api.Group("/v1")
 	{
-		// v1.Use(h.corsMiddleware)	// ?
 		h.initTaskRoutes(v1)
 		h.initAuthRoutes(v1)
 	}
-}
-
-func (h *Handler) isUserIdentify(c *gin.Context) {
-	header := c.GetHeader(authorizationHeader)
-
-	username, err := h.authorizer.ParseTokenReturnUsername(header)
-	if err != nil {
-		// TODO: сделать возвращение заголовка о необходимости перехода на страницу авторизации?
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	// Получение пользователя
-	user, err := h.services.UserService.GetUserByLogin(username)
-
-	if err != nil {
-		// TODO: сделать empty sql row
-		newErrorResponse(c, http.StatusUnauthorized, "Error token")
-		return
-	}
-
-	c.Set(userCtx, user)
 }
 
 func (h *Handler) getCurrentUser(c *gin.Context) (*domain.User, error) {
