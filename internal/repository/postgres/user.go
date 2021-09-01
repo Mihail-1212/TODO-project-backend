@@ -8,14 +8,6 @@ import (
 	"github.com/mihail-1212/todo-project-backend/pkg/domain"
 )
 
-/*
-
-	id serial NOT NULL PRIMARY KEY,
-	username VARCHAR ( 50 ) UNIQUE NOT NULL,
-	"password" VARCHAR ( 255 ) NOT NULL
-
-*/
-
 type UserPostgres struct {
 	db *sqlx.DB
 }

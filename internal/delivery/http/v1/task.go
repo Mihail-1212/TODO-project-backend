@@ -49,15 +49,18 @@ func (h *Handler) getTaskList(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param input body domain.CreateTask true "Create task form"
-// @Success 200 {object} domain.Task
+// @Success 200 {object} Task
 // @Failure 400,404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /api/v1/tasks/ [post]
 func (h *Handler) createTask(c *gin.Context) {
+	var responseTask Task
+	var err error
+
 	var input domain.CreateTask
 	user, _ := h.getCurrentUser(c)
 
-	err := c.BindJSON(&input)
+	err = c.BindJSON(&input)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "invalid input body")
 		return
@@ -70,13 +73,13 @@ func (h *Handler) createTask(c *gin.Context) {
 		UserId:      user.Id,
 	}
 
-	newTask, err := h.services.TaskService.CreateTask(&task)
+	responseTask.Task, err = h.services.TaskService.CreateTask(&task)
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, newTask)
+	c.JSON(http.StatusOK, responseTask)
 }
 
 // GetTaskByID godoc
@@ -85,22 +88,24 @@ func (h *Handler) createTask(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param taskId path int true "id of task"
-// @Success 200 {object} domain.Task
+// @Success 200 {object} Task
 // @Failure 400,404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /api/v1/tasks/{taskId} [get]
 func (h *Handler) getTaskByID(c *gin.Context) {
 	user, _ := h.getCurrentUser(c)
+	var responseTask Task
+	var err error
 
 	taskId, _ := strconv.Atoi(c.Param("taskId"))
 
-	task, err := h.services.TaskService.GetUserTaskByID(taskId, user)
+	responseTask.Task, err = h.services.TaskService.GetUserTaskByID(taskId, user)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, task)
+	c.JSON(http.StatusOK, responseTask)
 }
 
 // UpdateTask godoc
@@ -110,12 +115,14 @@ func (h *Handler) getTaskByID(c *gin.Context) {
 // @Produce json
 // @Param taskId path int true "id of task"
 // @Param input body domain.UpdateTask true "Update task form"
-// @Success 200 {object} domain.Task
+// @Success 200 {object} Task
 // @Failure 400,404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /api/v1/tasks/{taskId} [put]
 func (h *Handler) updateTask(c *gin.Context) {
 	var input domain.UpdateTask
+	var responseTask Task
+
 	user, _ := h.getCurrentUser(c)
 
 	taskId, _ := strconv.Atoi(c.Param("taskId"))
@@ -131,7 +138,7 @@ func (h *Handler) updateTask(c *gin.Context) {
 		return
 	}
 
-	task := domain.Task{
+	responseTask.Task = &domain.Task{
 		Id:          input.Id,
 		Name:        input.Name,
 		Description: input.Description,
@@ -139,13 +146,13 @@ func (h *Handler) updateTask(c *gin.Context) {
 		UserId:      user.Id,
 	}
 
-	err = h.services.TaskService.UpdateTaskOfUser(&task)
+	err = h.services.TaskService.UpdateTaskOfUser(responseTask.Task)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, task)
+	c.JSON(http.StatusOK, responseTask)
 }
 
 // DeleteTask godoc
@@ -172,4 +179,8 @@ func (h *Handler) deleteTask(c *gin.Context) {
 
 type Tasks struct {
 	Tasks []domain.Task `json:"tasks"`
+}
+
+type Task struct {
+	Task *domain.Task `json:"task"`
 }

@@ -40,6 +40,10 @@ func (h *Handler) signIn(c *gin.Context) {
 	}
 	token, err := h.authorizer.SignInReturnToken(&user)
 	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			newErrorResponse(c, http.StatusForbidden, err.Error())
+			return
+		}
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
